@@ -1,6 +1,4 @@
---====================================================
--- 📌 LOADING SCREEN (ZuriScriptsUI)
---====================================================
+--// LOADING SCREEN SCRIPT
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
@@ -9,7 +7,7 @@ ScreenGui.Name = "ZuriScriptsUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = game:GetService("CoreGui")
 
--- Outline Frame (slightly bigger than MainFrame)
+-- Outline Frame
 local Outline = Instance.new("Frame")
 Outline.Name = "Outline"
 Outline.Size = UDim2.new(0, 356, 0, 146)
@@ -118,9 +116,10 @@ PoweredByText.TextSize = 18
 PoweredByText.TextXAlignment = Enum.TextXAlignment.Center
 PoweredByText.Parent = MainFrame
 
--- Animate loading bar
-local function animateLoadingBar(duration)
+-- Function to animate loading bar and fade whole UI
+local function animateLoadingBar(duration, callback)
     local startTime = tick()
+
     local connection
     connection = RunService.Heartbeat:Connect(function()
         local elapsed = tick() - startTime
@@ -141,184 +140,173 @@ local function animateLoadingBar(duration)
             table.insert(tweens, TweenService:Create(LoadingBarFill, tweenInfo, {BackgroundTransparency = 1}))
             table.insert(tweens, TweenService:Create(LoadingBarBackground, tweenInfo, {BackgroundTransparency = 1}))
 
-            for _, tween in ipairs(tweens) do tween:Play() end
-            tweens[1].Completed:Wait()
+            for _, tween in ipairs(tweens) do
+                tween:Play()
+            end
 
+            tweens[1].Completed:Wait()
             ScreenGui:Destroy()
 
-            --====================================================
-            -- 📌 FREEZE TRADE GUI (runs after loading finishes)
-            --====================================================
-            loadstring([[
-                -- 👇 this is the Freeze Trade GUI script you said "NICE THXX" to
-                -- (--// Interactive GUI with custom drag + outside Exit + fade-out
--- Made by YuriOnTop
-
-pcall(function() game.CoreGui.TradeGUI:Destroy() end)
-
-local TweenService = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
-
--- ScreenGui
-local gui = Instance.new("ScreenGui")
-gui.Name = "TradeGUI"
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-gui.Parent = game.CoreGui
-
--- Main Frame
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 0, 0, 0) -- start small for tween-in
-frame.Position = UDim2.new(0.5, -150, 0.5, -120)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BorderSizePixel = 0
-frame.Active = true
-frame.Parent = gui
-
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-
--- Title (centered exactly like before)
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 40)
-title.Position = UDim2.new(0, 0, 0, 0)
-title.BackgroundTransparency = 1
-title.Text = "🌱 GROW A GARDEN 🌱"
-title.Font = Enum.Font.GothamBold
-title.TextSize = 20
-title.TextColor3 = Color3.fromRGB(0, 255, 0)
-title.TextXAlignment = Enum.TextXAlignment.Center
-title.Parent = frame
-
--- Subtitle (exactly under title, centered)
-local subtitle = Instance.new("TextLabel")
-subtitle.Size = UDim2.new(1, 0, 0, 20)
-subtitle.Position = UDim2.new(0, 0, 0, 38)
-subtitle.BackgroundTransparency = 1
-subtitle.Text = "FREEZE TRADE SCAM"
-subtitle.Font = Enum.Font.GothamSemibold
-subtitle.TextSize = 14
-subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-subtitle.TextXAlignment = Enum.TextXAlignment.Center
-subtitle.Parent = frame
-
--- Footer
-local footer = Instance.new("TextLabel")
-footer.Size = UDim2.new(1, 0, 0, 20)
-footer.Position = UDim2.new(0, 0, 1, -24)
-footer.BackgroundTransparency = 1
-footer.Text = "YouTube: ZuriScripts"
-footer.Font = Enum.Font.GothamBold
-footer.TextSize = 14
-footer.TextColor3 = Color3.fromRGB(255, 255, 0)
-footer.TextXAlignment = Enum.TextXAlignment.Center
-footer.Parent = frame
-
--- Toggle factory
-local function createToggle(name, posY)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -20, 0, 36)
-    btn.Position = UDim2.new(0, 10, 0, posY)
-    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    btn.Text = name .. " [OFF]"
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.Gotham
-    btn.TextSize = 16
-    btn.AutoButtonColor = false
-    btn.Parent = frame
-
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-
-    local on = false
-    btn.MouseButton1Click:Connect(function()
-        on = not on
-        if on then
-            btn.Text = name .. " [ON]"
-            btn.BackgroundColor3 = Color3.fromRGB(60, 100, 60)
-            game.StarterGui:SetCore("SendNotification", {
-                Title = "TRADE SCRIPT",
-                Text = name .. " has been activated",
-                Duration = 3
-            })
-        else
-            btn.Text = name .. " [OFF]"
-            btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            if callback then
+                task.wait(3) -- wait 3 seconds after fade
+                callback()
+            end
         end
     end)
 end
 
--- Buttons
-createToggle("Freeze Trade", 68)
-createToggle("Anti Detected", 108)
-createToggle("Trade Failed Bypass", 148)
+--// RUN LOADING SCREEN FIRST
+animateLoadingBar(5, function()
 
--- Outside Exit button
-local exit = Instance.new("TextButton")
-exit.Size = UDim2.new(0, 28, 0, 28)
-exit.Position = UDim2.new(1, -14, 0, -14)
-exit.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-exit.Text = "X"
-exit.TextColor3 = Color3.fromRGB(255, 255, 255)
-exit.Font = Enum.Font.GothamBold
-exit.TextSize = 16
-exit.ZIndex = 10
-exit.AutoButtonColor = false
-exit.Parent = frame
-Instance.new("UICorner", exit).CornerRadius = UDim.new(0, 6)
+    --// FREEZE TRADE GUI SCRIPT (unchanged)
+    pcall(function() game.CoreGui.TradeGUI:Destroy() end)
 
--- Hover effect
-exit.MouseEnter:Connect(function()
-    TweenService:Create(exit, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(170, 40, 40)}):Play()
-end)
-exit.MouseLeave:Connect(function()
-    TweenService:Create(exit, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(200, 50, 50)}):Play()
-end)
+    local TweenService = game:GetService("TweenService")
+    local UIS = game:GetService("UserInputService")
 
--- Fade-out + destroy on exit
-local function fadeOutAndDestroy()
-    for _,obj in ipairs(frame:GetDescendants()) do
-        if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-            TweenService:Create(obj, TweenInfo.new(0.25), {
-                TextTransparency = 1,
-                BackgroundTransparency = 1
-            }):Play()
-        end
-    end
-    TweenService:Create(frame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
-    task.wait(0.3)
-    gui:Destroy()
-end
-exit.MouseButton1Click:Connect(fadeOutAndDestroy)
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "TradeGUI"
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.Parent = game.CoreGui
 
--- Custom drag (by whole frame this time, not shifting text)
-local dragging, dragStart, startPos
-frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = frame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 0, 0, 0)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -120)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    frame.BorderSizePixel = 0
+    frame.Active = true
+    frame.Parent = gui
+
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "🌱 GROW A GARDEN 🌱"
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 20
+    title.TextColor3 = Color3.fromRGB(0, 255, 0)
+    title.TextXAlignment = Enum.TextXAlignment.Center
+    title.Parent = frame
+
+    local subtitle = Instance.new("TextLabel")
+    subtitle.Size = UDim2.new(1, 0, 0, 20)
+    subtitle.Position = UDim2.new(0, 0, 0, 38)
+    subtitle.BackgroundTransparency = 1
+    subtitle.Text = "FREEZE TRADE SCAM"
+    subtitle.Font = Enum.Font.GothamSemibold
+    subtitle.TextSize = 14
+    subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+    subtitle.TextXAlignment = Enum.TextXAlignment.Center
+    subtitle.Parent = frame
+
+    local footer = Instance.new("TextLabel")
+    footer.Size = UDim2.new(1, 0, 0, 20)
+    footer.Position = UDim2.new(0, 0, 1, -24)
+    footer.BackgroundTransparency = 1
+    footer.Text = "YouTube: ZuriScripts"
+    footer.Font = Enum.Font.GothamBold
+    footer.TextSize = 14
+    footer.TextColor3 = Color3.fromRGB(255, 255, 0)
+    footer.TextXAlignment = Enum.TextXAlignment.Center
+    footer.Parent = frame
+
+    local function createToggle(name, posY)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, -20, 0, 36)
+        btn.Position = UDim2.new(0, 10, 0, posY)
+        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        btn.Text = name .. " [OFF]"
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 16
+        btn.AutoButtonColor = false
+        btn.Parent = frame
+
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
+        local on = false
+        btn.MouseButton1Click:Connect(function()
+            on = not on
+            if on then
+                btn.Text = name .. " [ON]"
+                btn.BackgroundColor3 = Color3.fromRGB(60, 100, 60)
+                game.StarterGui:SetCore("SendNotification", {
+                    Title = "TRADE SCRIPT",
+                    Text = name .. " has been activated",
+                    Duration = 3
+                })
+            else
+                btn.Text = name .. " [OFF]"
+                btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
             end
         end)
     end
-end)
 
-UIS.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-                                   startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    createToggle("Freeze Trade", 68)
+    createToggle("Anti Detected", 108)
+    createToggle("Trade Failed Bypass", 148)
+
+    local exit = Instance.new("TextButton")
+    exit.Size = UDim2.new(0, 28, 0, 28)
+    exit.Position = UDim2.new(1, -14, 0, -14)
+    exit.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    exit.Text = "X"
+    exit.TextColor3 = Color3.fromRGB(255, 255, 255)
+    exit.Font = Enum.Font.GothamBold
+    exit.TextSize = 16
+    exit.ZIndex = 10
+    exit.AutoButtonColor = false
+    exit.Parent = frame
+    Instance.new("UICorner", exit).CornerRadius = UDim.new(0, 6)
+
+    exit.MouseEnter:Connect(function()
+        TweenService:Create(exit, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(170, 40, 40)}):Play()
+    end)
+    exit.MouseLeave:Connect(function()
+        TweenService:Create(exit, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(200, 50, 50)}):Play()
+    end)
+
+    local function fadeOutAndDestroy()
+        for _,obj in ipairs(frame:GetDescendants()) do
+            if obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                TweenService:Create(obj, TweenInfo.new(0.25), {
+                    TextTransparency = 1,
+                    BackgroundTransparency = 1
+                }):Play()
+            end
+        end
+        TweenService:Create(frame, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+        task.wait(0.3)
+        gui:Destroy()
     end
-end)
+    exit.MouseButton1Click:Connect(fadeOutAndDestroy)
 
--- Tween IN
-TweenService:Create(frame, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    Size = UDim2.new(0, 300, 0, 240)
-}):Play()
-)
-            ]])()
+    local dragging, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
         end
     end)
-end
 
-animateLoadingBar(5)
+    UIS.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                       startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    TweenService:Create(frame, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 300, 0, 240)
+    }):Play()
+
+end)
