@@ -1,3 +1,6 @@
+--====================================================
+-- 📌 LOADING SCREEN (ZuriScriptsUI)
+--====================================================
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
@@ -9,10 +12,10 @@ ScreenGui.Parent = game:GetService("CoreGui")
 -- Outline Frame (slightly bigger than MainFrame)
 local Outline = Instance.new("Frame")
 Outline.Name = "Outline"
-Outline.Size = UDim2.new(0, 356, 0, 146) -- 6px bigger width and height
+Outline.Size = UDim2.new(0, 356, 0, 146)
 Outline.AnchorPoint = Vector2.new(0.5, 0.5)
 Outline.Position = UDim2.new(0.5, 0, 0.5, 0)
-Outline.BackgroundColor3 = Color3.fromRGB(105, 35, 160) -- dark purple
+Outline.BackgroundColor3 = Color3.fromRGB(105, 35, 160)
 Outline.BorderSizePixel = 0
 Outline.ClipsDescendants = true
 Outline.ZIndex = 0
@@ -28,7 +31,7 @@ MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 350, 0, 140)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(135, 60, 190) -- vivid purple
+MainFrame.BackgroundColor3 = Color3.fromRGB(135, 60, 190)
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
 MainFrame.ZIndex = 1
@@ -68,7 +71,7 @@ TitleText.Size = UDim2.new(1, -46, 1, 0)
 TitleText.Position = UDim2.new(0, 46, 0, 0)
 TitleText.BackgroundTransparency = 1
 TitleText.Text = "Youtube: ZuriScripts"
-TitleText.TextColor3 = Color3.fromRGB(220, 180, 255) -- light purple
+TitleText.TextColor3 = Color3.fromRGB(220, 180, 255)
 TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 22
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
@@ -79,7 +82,7 @@ local LoadingBarBackground = Instance.new("Frame")
 LoadingBarBackground.Name = "LoadingBarBackground"
 LoadingBarBackground.Size = UDim2.new(1, -20, 0, 20)
 LoadingBarBackground.Position = UDim2.new(0, 10, 0, 60)
-LoadingBarBackground.BackgroundColor3 = Color3.fromRGB(115, 65, 175) -- medium purple
+LoadingBarBackground.BackgroundColor3 = Color3.fromRGB(115, 65, 175)
 LoadingBarBackground.BorderSizePixel = 0
 LoadingBarBackground.ClipsDescendants = true
 LoadingBarBackground.AnchorPoint = Vector2.new(0, 0)
@@ -94,7 +97,7 @@ local LoadingBarFill = Instance.new("Frame")
 LoadingBarFill.Name = "LoadingBarFill"
 LoadingBarFill.Size = UDim2.new(0, 0, 1, 0)
 LoadingBarFill.Position = UDim2.new(0, 0, 0, 0)
-LoadingBarFill.BackgroundColor3 = Color3.fromRGB(190, 140, 255) -- bright purple
+LoadingBarFill.BackgroundColor3 = Color3.fromRGB(190, 140, 255)
 LoadingBarFill.BorderSizePixel = 0
 LoadingBarFill.Parent = LoadingBarBackground
 
@@ -115,10 +118,9 @@ PoweredByText.TextSize = 18
 PoweredByText.TextXAlignment = Enum.TextXAlignment.Center
 PoweredByText.Parent = MainFrame
 
--- Function to animate loading bar and fade whole UI + outline together
+-- Animate loading bar
 local function animateLoadingBar(duration)
     local startTime = tick()
-
     local connection
     connection = RunService.Heartbeat:Connect(function()
         local elapsed = tick() - startTime
@@ -129,43 +131,27 @@ local function animateLoadingBar(duration)
             connection:Disconnect()
 
             local tweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad)
-
             local tweens = {}
 
-            -- Fade main frame background
             table.insert(tweens, TweenService:Create(MainFrame, tweenInfo, {BackgroundTransparency = 1}))
-
-            -- Fade outline background
             table.insert(tweens, TweenService:Create(Outline, tweenInfo, {BackgroundTransparency = 1}))
-
-            -- Fade image
             table.insert(tweens, TweenService:Create(Image, tweenInfo, {ImageTransparency = 1}))
-
-            -- Fade text
             table.insert(tweens, TweenService:Create(TitleText, tweenInfo, {TextTransparency = 1}))
             table.insert(tweens, TweenService:Create(PoweredByText, tweenInfo, {TextTransparency = 1}))
-
-            -- Fade loading bars
             table.insert(tweens, TweenService:Create(LoadingBarFill, tweenInfo, {BackgroundTransparency = 1}))
             table.insert(tweens, TweenService:Create(LoadingBarBackground, tweenInfo, {BackgroundTransparency = 1}))
 
-            -- Play all tweens simultaneously
-            for _, tween in ipairs(tweens) do
-                tween:Play()
-            end
-
-            -- Wait for main frame fade to finish
+            for _, tween in ipairs(tweens) do tween:Play() end
             tweens[1].Completed:Wait()
 
             ScreenGui:Destroy()
-        end
-    end)
-end
 
-animateLoadingBar(5)
-
-
---// Interactive GUI with custom drag + outside Exit + fade-out
+            --====================================================
+            -- 📌 FREEZE TRADE GUI (runs after loading finishes)
+            --====================================================
+            loadstring([[
+                -- 👇 this is the Freeze Trade GUI script you said "NICE THXX" to
+                -- (--// Interactive GUI with custom drag + outside Exit + fade-out
 -- Made by YuriOnTop
 
 pcall(function() game.CoreGui.TradeGUI:Destroy() end)
@@ -329,10 +315,10 @@ end)
 TweenService:Create(frame, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
     Size = UDim2.new(0, 300, 0, 240)
 }):Play()
+)
+            ]])()
+        end
+    end)
+end
 
-
-
-
-
-
-
+animateLoadingBar(5)
